@@ -1,13 +1,11 @@
-from fastapi import FastAPI, HTTPException, Cookie, Header, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-from datetime import datetime
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 from ml import predict
-import json
 import numpy as np
-
+import uvicorn
 
 MANUAL_ENCODING = {
     "information technology and services": 0,
@@ -22,25 +20,22 @@ MANUAL_ENCODING = {
     "banking": 9
 }
 
-
 class DeltaModel(BaseModel):
     industry: str
     Emissions: float
     disaster_risk: float
-    importance: float # This is bias
+    importance: float
 
-
-# Define a model for the request data
 app = FastAPI()
 
+def convert_encoding(industry: str) -> int:
+    return MANUAL_ENCODING.get(industry, -1)  # Returns -1 for unknown industries
 
-
-def convert_encoding(industry):
-    return MANUAL_ENCODING[industry]
-
-def round_all(dic):
+# Numpy arrays have issues when they're converted directly into JSON
+# so we use this dirty workaround to solve that
+def round_all(data: dict) -> dict:
     rounded_dict = {}
-    for key, value in dic.items():
+    for key, value in data.items():
         if isinstance(value, np.ndarray):
             # Convert to a Python list
             rounded_dict[key] = np.round(value, 5).tolist()
@@ -53,43 +48,25 @@ def round_all(dic):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-    )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
-# Custom exception handler for RequestValidationError
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors()},
-    )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 @app.get("/ping")
 async def pong():
-    start_time = datetime.now()
-    end_time = datetime.now()
-    duration = (end_time - start_time).total_seconds()
-    return {"message": "pong", "duration": f"{duration} seconds"}
-
+    return {"message": "pong"}
 
 @app.post("/predict")
 async def handle_model(data: DeltaModel):
     try: 
-
         data_dict = data.dict()
-        # print(data_dict)
-        prediction = predict(data_dict) 
-        prediction = round_all(prediction)
-        # print(prediction)
-        
-        return prediction
-        
+        data_dict["industry"] = convert_encoding(data_dict["industry"])
+        prediction = predict(data_dict)
+        return round_all(prediction)
     except Exception as e:
-        return {"error": "Something went wrong. Stacktrace: " + str(e)}
-
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == '__main__':
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
