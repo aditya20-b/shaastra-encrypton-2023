@@ -3,11 +3,13 @@
 ## Aim
 This project aims to provide recommendations and aid towards projects and stocks that promote sustainable development.
 
+## Overview
 This project uses a Decision Tree classifier model that is capable of determining whether 
 the net positive environmental impact is optimal for optimal investment
 
 This tool is unique because it can be used by both small investors and large firms looking to make a difference.
 
+## Key Features
 Projekt takes into account various factors while determining the optimality of an investment, such as:
 -  Capital invested
 - The Profit/Emission ratio (Emission Productivity)
@@ -19,7 +21,15 @@ Projekt takes into account various factors while determining the optimality of a
 - Industry-specific emission reduction biases
   - reduction of 10% in emission in an industry which is heavily reliant on emission is more significant than a 15% emission reduction in an industry that hardly burns fuel. 
 
-Reasoning
+## Model and Algorithm
+Our decision-making process is underpinned by two core components:
+
+1. **Decision Tree Algorithm:** This machine learning algorithm offers straightforward, accurate predictions applicable to a wide range of data scales. It provides a binary outcome (Yes/No) to indicate the advisability of investing in a particular stock.
+
+2. **Mathematical Model:** Complementing the Decision Tree, this model generates a probability score (ranging from 0 to 1) to offer a nuanced view of each investment opportunity. This stochastic approach enhances decision-making with a more detailed analysis.
+
+
+## Reasoning
 - Investors may be small or large, so we need to make sure that the model is able to predict for all magnitudes of data.
 - The Emission-Productivity value is very important in the study of sustainable development, hence it is imperative that we consider it in our calculation
 - To make the Machine Learning Model as straightforward, simple, and accurate as possible, the Decision Tree algorithm was used.
