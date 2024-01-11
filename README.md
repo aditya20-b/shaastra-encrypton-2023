@@ -1,4 +1,4 @@
-# Projekt
+# Greenvest
 
 ## Aim
 This project aims to provide recommendations and aid towards projects and stocks that promote sustainable development.
