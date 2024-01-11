@@ -1,14 +1,7 @@
 import pandas as pd
 import math
 from typing import Dict, Any
-
-# Constants
-PRINCIPAL: int = 1_000_000
-Z_FACTOR: int = 5
-K_VALUE: float = 0.8
-EMISSION_RISK_INDEX: float = 0.05
-ENVIRONMENTAL_FEE_INDEX: int = 0
-THRESHOLD: float = 0.75
+from constants import *
 
 def calculate_investment_risk(data: pd.DataFrame) -> float:
     beta: float = 1.0
